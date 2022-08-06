@@ -52,6 +52,8 @@ class TimeRangeView @JvmOverloads constructor(
     //白色滚动条超过红色滑块的高度
     private var mBarOverHeight = 0
 
+    private var mListener : SeekListener ?= null
+
     private val mPaint : Paint by lazy { Paint().also {
         it.isAntiAlias = true
     } }
@@ -74,6 +76,10 @@ class TimeRangeView @JvmOverloads constructor(
 
     fun setMinSelectRatio(minRatio:Float){
         mMinSelRatio = minRatio
+    }
+
+    fun setListener(listener:SeekListener){
+        mListener = listener
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -152,6 +158,10 @@ class TimeRangeView @JvmOverloads constructor(
                 if (mIsDragging){
                     if (mLeftSlider.mIsPress || mRightSlider.mIsPress){
                         updateSlideBarPos(mLeftSlider.x.toInt() + mLeftSlider.width)
+                        mListener?.onSelectRangeChange(getStartProgress(), getEndProgress(),mLeftSlider.mIsPress)
+                    }
+                    if (mSlideBar.mIsPress){
+                        mListener?.onSeekBarChange(getSeekBarProgress())
                     }
                 }
                 mIsDragging = false
@@ -195,7 +205,6 @@ class TimeRangeView @JvmOverloads constructor(
     }
 
 
-
     private fun updateSlideBarPos(finalXPos: Int){
         var xPos = finalXPos
         val startX = mLeftSlider.x.toInt() + mLeftSlider.width
@@ -218,19 +227,25 @@ class TimeRangeView @JvmOverloads constructor(
         mLeftMaskRec.setEmpty()
         mRightMaskRec.setEmpty()
 
-        val lineStartX = mLeftSlider.x.toInt() + mLeftSlider.width
+        val lineStartX = mLeftSlider.x.toInt() + mLeftSlider.measuredWidth
         val lineEndX = mRightSlider.x.toInt()
         mTopLineRec.set(lineStartX,mBarOverHeight,lineEndX,mBarOverHeight + mLineHeight)
         mBottomLineRec.set(lineStartX,mHeight - mLineHeight - mBarOverHeight,lineEndX,mHeight - mBarOverHeight)
 
-
-        mLeftMaskRec.set( mLeftSlider.width,mBarOverHeight,lineStartX,mBarOverHeight + mLeftSlider.height)
-        mRightMaskRec.set(lineEndX,mBarOverHeight,mWidth - mRightSlider.width,mBarOverHeight + mRightSlider.height)
+        mLeftMaskRec.set( mLeftSlider.measuredWidth,mBarOverHeight,lineStartX,mBarOverHeight + mLeftSlider.height)
+        mRightMaskRec.set(lineEndX,mBarOverHeight,mWidth - mRightSlider.measuredWidth,mBarOverHeight + mRightSlider.height)
 
         invalidate()
     }
 
+    //裁剪开始的比例，0 - 1f
+    fun getStartProgress() = mLeftSlider.mProgress
 
+    //裁剪结束的比例，0 - 1f
+    fun getEndProgress() = mRightSlider.mProgress
+
+    //白色滑动棒的进度条
+    fun getSeekBarProgress() = mSlideBar.mProgress
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
@@ -244,6 +259,10 @@ class TimeRangeView @JvmOverloads constructor(
 
     }
 
+    interface SeekListener {
+        fun onSelectRangeChange(startProgress:Float,endProgress:Float,isLeft:Boolean)
+        fun onSeekBarChange(process:Float)
+    }
 
 
 }
