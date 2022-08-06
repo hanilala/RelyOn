@@ -2,10 +2,12 @@ package com.hani.relyon.test
 
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.hani.relyon.databinding.ActivityTestBinding
 import com.hani.relyon.view.RecordProgressView
+import com.hani.relyon.view.TimeRangeView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -22,6 +24,7 @@ class TestActivity : AppCompatActivity() {
     private lateinit var binding: ActivityTestBinding
     private var mRecordJob: Job? = null
     private var mIsRecording = false
+    private var path = "/storage/emulated/0/DCIM/GimiGimi/中等质量.mp4"
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,6 +44,23 @@ class TestActivity : AppCompatActivity() {
             }
         } )
         binding.mSliderBarView.setMinSelectRatio(0.1f)
+        binding.mSliderBarView.setListener(object : TimeRangeView.SeekListener{
+            override fun onSelectRangeChange(
+                startProgress: Float,
+                endProgress: Float,
+                isLeft: Boolean
+            ) {
+
+            }
+
+            override fun onSeekBarChange(process: Float) {
+
+            }
+
+            override fun onReachMin() {
+                Toast.makeText(this@TestActivity,"视频不可小于1秒",Toast.LENGTH_SHORT).show()
+            }
+        } )
     }
 
     private fun countTime(){

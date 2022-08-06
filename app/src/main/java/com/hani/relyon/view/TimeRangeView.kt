@@ -117,6 +117,8 @@ class TimeRangeView @JvmOverloads constructor(
     private var mDownX = 0
     private var mLastX = 0
     private var mIsDragging = false
+    //true,拖拽到最小选择时间
+    private var mReachMin = false
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
         var handle = false
@@ -159,12 +161,16 @@ class TimeRangeView @JvmOverloads constructor(
                     if (mLeftSlider.mIsPress || mRightSlider.mIsPress){
                         updateSlideBarPos(mLeftSlider.x.toInt() + mLeftSlider.width)
                         mListener?.onSelectRangeChange(getStartProgress(), getEndProgress(),mLeftSlider.mIsPress)
+                        if (mReachMin){
+                            mListener?.onReachMin()
+                        }
                     }
                     if (mSlideBar.mIsPress){
                         mListener?.onSeekBarChange(getSeekBarProgress())
                     }
                 }
                 mIsDragging = false
+                mReachMin = false
                 mLeftSlider.mIsPress = false
                 mRightSlider.mIsPress = false
                 mSlideBar.mIsPress = false
@@ -178,6 +184,7 @@ class TimeRangeView @JvmOverloads constructor(
     private fun updateRightSliderPos(distance:Int){
         var xPos = mRightSlider.x.toInt() + distance
         if (xPos < mLeftSlider.x + mLeftSlider.width + mMinSelLength ){
+            mReachMin = true
             xPos = (mLeftSlider.x + mLeftSlider.width + mMinSelLength).toInt()
         }else if (xPos > mWidth - mRightSlider.width){
             xPos = mWidth - mRightSlider.width
@@ -194,6 +201,7 @@ class TimeRangeView @JvmOverloads constructor(
         if (xPos < 0){
             xPos = 0
         }else if ( xPos > mRightSlider.x - mMinSelLength - mLeftSlider.width ){
+            mReachMin = true
             xPos = (mRightSlider.x - mMinSelLength - mLeftSlider.width).toInt()
         }
         mLeftSlider.x = xPos.toFloat()
@@ -262,6 +270,7 @@ class TimeRangeView @JvmOverloads constructor(
     interface SeekListener {
         fun onSelectRangeChange(startProgress:Float,endProgress:Float,isLeft:Boolean)
         fun onSeekBarChange(process:Float)
+        fun onReachMin()
     }
 
 

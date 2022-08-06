@@ -50,5 +50,8 @@ dependencies {
     implementation project.ext.threeDependencies["activity-ktx"]
     implementation project.ext.threeDependencies["fragment-ktx"]
     api project.ext.threeDependencies["lifecycle-ktx"]
+    api project.ext.threeDependencies["android-util-code"]
+    implementation project.ext.threeDependencies["baseRecyclerViewAdapter"]
+
 
 }

@@ -1,5 +1,6 @@
 package com.hani.relyon
 
+import android.Manifest
 import android.content.Intent
 import android.os.Bundle
 import com.google.android.material.snackbar.Snackbar
@@ -10,8 +11,10 @@ import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import android.view.Menu
 import android.view.MenuItem
+import com.blankj.utilcode.util.PermissionUtils
 import com.hani.relyon.databinding.ActivityMainBinding
 import com.hani.relyon.test.TestActivity
+import kotlin.coroutines.resume
 
 class MainActivity : AppCompatActivity() {
 
@@ -33,9 +36,21 @@ class MainActivity : AppCompatActivity() {
         binding.fab.setOnClickListener { view ->
 //            Snackbar.make(view, "NONONO", Snackbar.LENGTH_LONG)
 //                .setAction("Action", null).show()
-            val intent = Intent(this,TestActivity::class.java)
-            startActivity(intent)
+            checkPermission()
         }
+    }
+
+    private fun checkPermission(){
+        PermissionUtils.permission(Manifest.permission.WRITE_EXTERNAL_STORAGE).callback(object : PermissionUtils.SimpleCallback {
+            override fun onGranted() {
+                val intent = Intent(this@MainActivity,TestActivity::class.java)
+                startActivity(intent)
+            }
+
+            override fun onDenied() {
+
+            }
+        }).request()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
